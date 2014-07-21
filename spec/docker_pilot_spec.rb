@@ -4,7 +4,8 @@ require 'docker_pilot'
 describe DockerPilot do
 
   it "has a host by default" do
-    expect(DockerPilot.host).to eq("0.0.0.0")
+    DockerPilot.host = "192.168.59.103"
+    expect(DockerPilot.host).to eq("192.168.59.103")
   end
 
   it "has a port by default" do

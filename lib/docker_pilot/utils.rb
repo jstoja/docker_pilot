@@ -1,4 +1,11 @@
 module DockerPilot
+
+  def self.add_params(params_matching, params_values)
+    if params_matching.empty? || params_values.empty?
+      return ""
+    end
+  end
+
   def self.query_and_parse(query_path = "/")
     res = send_query query_path
     if res.instance_of? Net::HTTPOK and res.body != nil
