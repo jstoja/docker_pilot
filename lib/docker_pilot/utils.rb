@@ -1,9 +1,9 @@
+require 'active_support/all'
+
 module DockerPilot
 
-  def self.add_params(params_matching, params_values)
-    if params_matching.empty? || params_values.empty?
-      return ""
-    end
+  def self.build_query(params, defaults)
+    "?" + params.compact.extract!(*defaults).to_query
   end
 
   def self.query_and_parse(query_path = "/")

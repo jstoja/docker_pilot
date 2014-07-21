@@ -13,9 +13,26 @@ describe DockerPilot do
     expect(DockerPilot.dockerURI("/_ping")).to eq(uri)
   end
 
-  it "#add_params should be ok with an empty hash in either way" do
-    res = DockerPilot::add_params({}, {})
-    expect(res).to eq("")
+  describe "#build_query" do
+    it "should be ok with an empty hash in either way" do
+      res = DockerPilot::build_query({}, [])
+      expect(res).to eq("?")
+    end
+
+    it "should work with 1 param not in defaults" do
+      res = DockerPilot::build_query({all: 1}, [])
+      expect(res).to eq("?")
+    end
+
+    it "should work with 1 param not in defaults" do
+      res = DockerPilot::build_query({all: 1}, [:all])
+      expect(res).to eq("?all=1")
+    end
+
+    it "should work with several params" do
+      res = DockerPilot::build_query({all: 1, limit: 10, size: false}, [:all, :limit, :size])
+      expect(res).to eq("?all=1&limit=10&size=false")
+    end
   end
 
   xit "#query_and_parse" do
