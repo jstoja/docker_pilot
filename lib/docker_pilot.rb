@@ -10,11 +10,11 @@ module DockerPilot
   @@docker_port = 2375
 
   def self.version
-    query_and_parse "/version"
+    get_and_parse "/version"
   end
 
   def self.info
-    query_and_parse "/info"
+    get_and_parse "/info"
   end
 
   def self.events
@@ -22,7 +22,7 @@ module DockerPilot
   end
 
   def self.ping
-    res = send_query "/_ping"
+    res = get_query "/_ping"
     (res.body == "OK") ? (true) : (false)
   end
 
