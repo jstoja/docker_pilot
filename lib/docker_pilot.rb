@@ -1,20 +1,29 @@
 require 'json'
 require 'uri'
 require 'net/http'
+require 'rest_client'
 
 require 'docker_pilot/version'
+require 'docker_pilot/docker_pilot_object'
+require 'docker_pilot/api_ressource'
 require 'docker_pilot/utils'
 
 module DockerPilot
-  @@docker_host = "0.0.0.0"
-  @@docker_port = 2375
+  @url = "0.0.0.0"
+  @docker_port = 2375
+
+  class << self
+    attr_accessor :docker_host, :url
+  end
 
   def self.version
-    get_and_parse "/version"
+    request(:get, '/version')
+    #get_and_parse "/version"
   end
 
   def self.info
-    get_and_parse "/info"
+    request(:get, '/info')
+    #get_and_parse "/info"
   end
 
   def self.events
@@ -22,20 +31,57 @@ module DockerPilot
   end
 
   def self.ping
-    res = get_query "/_ping"
-    (res.body == "OK") ? (true) : (false)
+    res = request(:get, '/_ping')
+    (res == "OK") ? (true) : (false)
   end
 
-  def self.host=(docker_host)
-    @@docker_host = docker_host
+  def self.request(method, url, params={}, headers={})
+    url = "#{@url}:#{@docker_port}" + url
+    request_opts = {}
+    request_opts.update(:method => method, :open_timeout => 30,
+                        :url => url, :timeout => 80)
+    begin
+       response = execute_request(request_opts)
+    rescue SocketError => e
+    rescue NoMethodError => e
+    rescue RestClient::ExceptionWithResponse => e
+    rescue RestClient::Exception, Errno::ECONNREFUSED => e
+    end
+     #rescue SocketError => e
+     #  #handle_restclient_error(e)
+     #rescue NoMethodError => e
+     #  # Work around RestClient bug
+     #  if e.message =~ /\WRequestFailed\W/
+     #    #e = APIConnectionError.new('Unexpected HTTP response code')
+     #    #handle_restclient_error(e)
+     #  else
+     #    raise
+     #  end
+     #rescue RestClient::ExceptionWithResponse => e
+     #  if rcode = e.http_code and rbody = e.http_body
+     #    #handle_api_error(rcode, rbody)
+     #  else
+     #    #handle_restclient_error(e)
+     #  end
+     #rescue RestClient::Exception, Errno::ECONNREFUSED => e
+     #  #handle_restclient_error(e)
+     #end
+    parse(response)
   end
-  def self.host
-    @@docker_host
+
+  def self.execute_request(opts)
+    RestClient::Request.execute(opts)
   end
-  def self.port=(docker_port)
-    @@docker_port = docker_port
-  end
-  def self.port
-    @@docker_port
+
+  def self.parse(response)
+    begin
+      # Would use :symbolize_names => true, but apparently there is
+      # some library out there that makes symbolize_names not work.
+      response = JSON.parse(response)
+    rescue JSON::ParserError
+      #TODO: make more specific
+    end
+
+    response
   end
 end

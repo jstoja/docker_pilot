@@ -3,22 +3,14 @@ require 'docker_pilot'
 
 describe DockerPilot do
 
-  it "has a host by default" do
-    DockerPilot.host = "192.168.59.103"
-    expect(DockerPilot.host).to eq("192.168.59.103")
-  end
-
-  it "has a port by default" do
-    expect(DockerPilot.port).to eq(2375)
-  end
-
   describe "API" do
     it "#ping" do
+      DockerPilot.url = "192.168.59.103"
       res = DockerPilot.ping
       expect(res).to be_truthy.or be_falsy
     end
 
-    it "#events" do
+    xit "#events" do
       pending "Can't understand what this is doing for now"
       res = DockerPilot.expect
       expect(res).to be_truthy.or be_falsy
